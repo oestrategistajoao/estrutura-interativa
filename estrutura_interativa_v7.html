@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arquitetura de Agentes para Mídia Paga</title>
+  <!--
+    Esta versão do fluxograma reposiciona as etapas de forma mais simétrica,
+    seguindo convenções de diagramas de arquitetura de software. O ETL e o
+    banco de dados são colocados no topo, os grupos de criação e de
+    análise/otimização ficam lado a lado no centro e o repórter no
+    rodapé. As setas foram reorganizadas para minimizar cruzamentos e
+    reforçar a direção dos dados. As cores e formas mantêm a
+    simbologia (cilindro para banco). Clique nos cartões para ver
+    detalhes.
+  -->
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --txt: #111827;
+      --shadow: 0 2px 6px rgba(0,0,0,0.1);
+      --primary: #3b82f6;   /* azul: ETL e Repórter */
+      --secondary: #10b981; /* verde: Banco */
+      --orange: #f59e0b;    /* laranja: Criação */
+      --purple: #8b5cf6;    /* roxo: Análise & Otimização */
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+    }
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 28px;
+    }
+    .diagram {
+      width: 90%;
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      padding-bottom: 80px;
+    }
+    .row {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      position: relative;
+    }
+    .row-middle {
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .agent {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 16px 24px;
+      text-align: center;
+      min-width: 160px;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.15s;
+    }
+    .agent:hover { transform: translateY(-4px); }
+    .agent::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      background: var(--primary);
+    }
+    .etl::before { background: var(--primary); }
+    .db::before { background: var(--secondary); }
+    .cria::before { background: var(--orange); }
+    .analise::before { background: var(--purple); }
+    .report::before { background: var(--primary); }
+    /* Cilindro para banco de dados */
+    .db {
+      border-radius: 10px 10px 50% 50% / 15% 15% 30% 30%;
+    }
+    .group {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 32px 20px 24px;
+      position: relative;
+      flex: 1;
+      max-width: 48%;
+    }
+    .group-title {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      font-size: 14px;
+      background: var(--bg);
+      padding: 0 6px;
+      color: #374151;
+    }
+    .group-content {
+      display: flex;
+      justify-content: space-evenly;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .arrow {
+      stroke: #6b7280;
+      stroke-width: 2;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 24px 32px;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      max-width: 480px;
+      position: relative;
+    }
+    .modal h2 { margin-top: 0; }
+    .close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      cursor: pointer;
+      font-size: 22px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <h1>Arquitetura de Agentes para Mídia Paga</h1>
+  <div class="diagram" id="diagram">
+    <!-- ETL e Banco -->
+    <div class="row">
+      <div class="agent etl" id="etl" data-title="ETL Meta Ads" data-desc="Coleta diariamente métricas das campanhas de Meta Ads, transforma e normaliza os dados." >ETL&nbsp;Meta&nbsp;Ads</div>
+    </div>
+    <div class="row">
+      <div class="agent db" id="db" data-title="Banco de Dados Supabase" data-desc="Armazena os dados brutos e processados, servindo de base para as análises e otimizações." >Banco de Dados&nbsp;Supabase</div>
+    </div>
+    <!-- Grupos no centro -->
+    <div class="row row-middle">
+      <div class="group" id="group-criacao">
+        <div class="group-title">Criação de Campanhas</div>
+        <div class="group-content">
+          <div class="agent cria" id="curador" data-title="Agente Curador" data-desc="Seleciona materiais criativos e recursos do repositório para uso nas campanhas." >Agente Curador</div>
+          <div class="agent cria" id="construtor" data-title="Agente Construtor" data-desc="Usa os materiais selecionados para montar e lançar campanhas de mídia." >Agente Construtor</div>
+        </div>
+      </div>
+      <div class="group" id="group-analise">
+        <div class="group-title">Análise&nbsp;&amp;&nbsp;Otimização</div>
+        <div class="group-content">
+          <div class="agent analise" id="analista" data-title="Agente Analista" data-desc="Consulta o banco de dados, calcula KPIs e elabora relatórios de desempenho." >Agente Analista</div>
+          <div class="agent analise" id="estrategista" data-title="Agente Estrategista" data-desc="Lê relatórios, define hipóteses, metas e regras para otimização." >Agente Estrategista</div>
+          <div class="agent analise" id="otimizador" data-title="Agente Otimizador" data-desc="Aplica mudanças nas campanhas conforme as estratégias e guard-rails definidos." >Agente Otimizador</div>
+        </div>
+      </div>
+    </div>
+    <!-- Repórter -->
+    <div class="row row-report">
+      <div class="agent report" id="reporter" data-title="Agente Repórter" data-desc="Compila informações, formata relatórios e envia atualizações para os canais de comunicação." >Agente Repórter</div>
+    </div>
+    <!-- Conectores -->
+    <svg id="connectors">
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+          <polygon points="0 0, 7 3.5, 0 7" fill="#6b7280" />
+        </marker>
+      </defs>
+      <path id="path-etl-db" class="arrow" />
+      <path id="path-curador-construtor" class="arrow" />
+      <path id="path-db-analise" class="arrow" />
+      <path id="path-analista-estrategista" class="arrow" />
+      <path id="path-estrategista-otimizador" class="arrow" />
+      <path id="path-analise-reporter" class="arrow" />
+      <path id="path-loop" class="arrow" />
+    </svg>
+  </div>
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">×</span>
+      <h2 id="modal-title"></h2>
+      <p id="modal-desc"></p>
+    </div>
+  </div>
+  <script>
+    // Funções auxiliares para obter pontos
+    function centerBottom(el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width/2 + window.scrollX, y: r.bottom + window.scrollY };
+    }
+    function centerTop(el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width/2 + window.scrollX, y: r.top + window.scrollY };
+    }
+    function middleRight(el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.right + window.scrollX, y: r.top + r.height/2 + window.scrollY };
+    }
+    function middleLeft(el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + window.scrollX, y: r.top + r.height/2 + window.scrollY };
+    }
+    function updateArrows() {
+      const etl = document.getElementById('etl');
+      const db = document.getElementById('db');
+      const curador = document.getElementById('curador');
+      const construtor = document.getElementById('construtor');
+      const analista = document.getElementById('analista');
+      const estrategista = document.getElementById('estrategista');
+      const otimizador = document.getElementById('otimizador');
+      const groupAnalise = document.getElementById('group-analise');
+      const reporter = document.getElementById('reporter');
+      const diagramRect = document.getElementById('diagram').getBoundingClientRect();
+      // ETL -> DB (vertical)
+      const etlBottom = centerBottom(etl);
+      const dbTop = centerTop(db);
+      document.getElementById('path-etl-db').setAttribute('d', `M${etlBottom.x},${etlBottom.y} L${dbTop.x},${dbTop.y}`);
+      // Curador -> Construtor (horizontal)
+      const c1 = middleRight(curador);
+      const c2 = middleLeft(construtor);
+      document.getElementById('path-curador-construtor').setAttribute('d', `M${c1.x},${c1.y} L${c2.x},${c2.y}`);
+      // DB -> Grupo de Análise (omisso para evitar excesso de linhas)
+      document.getElementById('path-db-analise').setAttribute('d', '');
+      // Analista -> Estrategista (horizontal)
+      const a1 = middleRight(analista);
+      const a2 = middleLeft(estrategista);
+      document.getElementById('path-analista-estrategista').setAttribute('d', `M${a1.x},${a1.y} L${a2.x},${a2.y}`);
+      // Estrategista -> Otimizador (horizontal)
+      const e1 = middleRight(estrategista);
+      const e2 = middleLeft(otimizador);
+      document.getElementById('path-estrategista-otimizador').setAttribute('d', `M${e1.x},${e1.y} L${e2.x},${e2.y}`);
+      // Grupo Análise -> Repórter (vertical)
+      const analiseBottom = centerBottom(groupAnalise);
+      const reporterTop = centerTop(reporter);
+      document.getElementById('path-analise-reporter').setAttribute('d', `M${analiseBottom.x},${analiseBottom.y} L${analiseBottom.x},${reporterTop.y}`);
+      // Loop omitido para reduzir complexidade visual
+      document.getElementById('path-loop').setAttribute('d', '');
+    }
+    // Configuração do modal
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    document.querySelectorAll('.agent').forEach(el => {
+      el.addEventListener('click', () => {
+        modalTitle.textContent = el.getAttribute('data-title');
+        modalDesc.textContent = el.getAttribute('data-desc');
+        modal.style.display = 'flex';
+      });
+    });
+    document.getElementById('closeModal').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+    window.addEventListener('load', updateArrows);
+    window.addEventListener('resize', updateArrows);
+  </script>
+</body>
+</html>
