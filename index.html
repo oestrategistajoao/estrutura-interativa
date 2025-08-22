@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arquitetura de Agentes para Mídia Paga</title>
+  <style>
+    :root {
+      /* Paleta de cores para uma aparência moderna e coerente */
+      --bg-color: #f5f7fa;
+      --text-color: #2c3e50;
+      --card-radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      /* Cores específicas dos cartões (barras superiores) */
+      --blue-bar: #3a75c4;
+      --green-bar: #2ecc71;
+      --yellow-bar: #f1c40f;
+      --purple-bar: #9b59b6;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    h1 {
+      text-align: center;
+      padding: 20px 0;
+      margin: 0;
+      font-size: 2rem;
+    }
+    /* Contêiner principal para o diagrama */
+    .diagram {
+      position: relative;
+      width: 100%;
+      height: 850px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    /* Estilos base dos cartões */
+    .card {
+      position: absolute;
+      width: 220px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: var(--card-radius);
+      box-shadow: var(--shadow);
+      background-color: #ffffff;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      padding-top: 10px; /* espaço para a barra de cor */
+    }
+    .card::before {
+      /* Barra de cor no topo de cada cartão */
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      border-top-left-radius: var(--card-radius);
+      border-top-right-radius: var(--card-radius);
+    }
+    .card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    /* Cores específicas para cada tipo de cartão */
+    .blue::before { background-color: var(--blue-bar); }
+    .green::before { background-color: var(--green-bar); }
+    .yellow::before { background-color: var(--yellow-bar); }
+    .purple::before { background-color: var(--purple-bar); }
+    /* Posicionamento dos cartões no diagrama */
+    #etl { left: 100px; top: 100px; }
+    #db  { left: 600px; top: 100px; }
+    #curador { left: 100px; top: 300px; }
+    #construtor { left: 600px; top: 300px; }
+    #analista { left: 100px; top: 500px; }
+    #estrategista { left: 450px; top: 500px; }
+    #otimizador { left: 800px; top: 500px; }
+    #reporter { left: 450px; top: 700px; }
+    /* Estilos para o SVG (linhas de conexão) */
+    svg.connectors {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Modal de detalhes */
+    #detailModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #detailModal .modal-content {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px 30px;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    #detailModal .modal-content h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+    #detailModal .modal-content p {
+      line-height: 1.4;
+      margin-bottom: 0;
+    }
+    #detailModal .close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      cursor: pointer;
+      font-size: 24px;
+      color: #999;
+    }
+    #detailModal .close:hover {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Arquitetura de Agentes para Mídia Paga</h1>
+  <div class="diagram">
+    <!-- Linhas de conexão utilizando SVG para melhor qualidade -->
+    <svg class="connectors" viewBox="0 0 1200 850">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#666666" />
+        </marker>
+      </defs>
+      <!-- ETL ➜ DB -->
+      <line x1="320" y1="150" x2="600" y2="150" stroke="#666666" stroke-width="2" marker-end="url(#arrow)" />
+      <!-- Curador ➜ Construtor -->
+      <line x1="320" y1="350" x2="600" y2="350" stroke="#666666" stroke-width="2" marker-end="url(#arrow)" />
+      <!-- Analista ➜ Estrategista -->
+      <line x1="320" y1="550" x2="450" y2="550" stroke="#666666" stroke-width="2" marker-end="url(#arrow)" />
+      <!-- Estrategista ➜ Otimizador -->
+      <line x1="670" y1="550" x2="800" y2="550" stroke="#666666" stroke-width="2" marker-end="url(#arrow)" />
+      <!-- Estrategista ➜ Repórter -->
+      <line x1="560" y1="600" x2="560" y2="700" stroke="#666666" stroke-width="2" marker-end="url(#arrow)" />
+      <!-- Otimizador ➜ ETL (ciclo) -->
+      <path d="M 910 550 L 910 80 L 210 80 L 210 100" stroke="#666666" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+    </svg>
+    <!-- Cartões representando cada etapa/agente -->
+    <div id="etl" class="card blue" data-name="ETL Meta Ads">ETL Meta Ads</div>
+    <div id="db" class="card green" data-name="Banco de Dados Supabase">Banco de Dados Supabase</div>
+    <div id="curador" class="card yellow" data-name="Agente Curador">Agente Curador</div>
+    <div id="construtor" class="card yellow" data-name="Agente Construtor">Agente Construtor</div>
+    <div id="analista" class="card purple" data-name="Agente Analista">Agente Analista</div>
+    <div id="estrategista" class="card purple" data-name="Agente Estrategista">Agente Estrategista</div>
+    <div id="otimizador" class="card purple" data-name="Agente Otimizador">Agente Otimizador</div>
+    <div id="reporter" class="card blue" data-name="Agente Repórter">Agente Repórter</div>
+  </div>
+  <!-- Modal para exibir detalhes dos agentes -->
+  <div id="detailModal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle"></h2>
+      <p id="modalDesc"></p>
+    </div>
+  </div>
+  <script>
+    // Conteúdo detalhado de cada agente
+    const detalhes = {
+      "ETL Meta Ads": "O cron coleta as métricas diárias da API do Meta Ads, transforma os dados brutos em um formato estruturado e grava tudo no banco de dados Supabase para utilização posterior.",
+      "Banco de Dados Supabase": "Serve como repositório central onde métricas e dados brutos são armazenados em tabelas consistentes. Permite consultas rápidas e sustenta análises e automações de marketing.",
+      "Agente Curador": "Monitora diretórios no Drive (ou outro armazenamento) para buscar novos materiais e criativos, e prepara um brief organizado das campanhas que deverão ser lançadas.",
+      "Agente Construtor": "Utiliza as informações do brief para criar campanhas no Meta Ads via API, configurando objetivos, públicos, criativos e orçamentos de acordo com as diretrizes recebidas.",
+      "Agente Analista": "Consulta o banco de dados, calcula KPIs, consolida as informações principais e elabora um relatório detalhado no Notion ou outra ferramenta de documentação.",
+      "Agente Estrategista": "Revisa o relatório, interpreta as métricas e o cenário, e define hipóteses, guard rails e estratégias de otimização para as próximas ações na conta de anúncios.",
+      "Agente Otimizador": "Aplica as estratégias e regras definidas pelo estrategista na conta de anúncios, ajustando orçamentos, anúncios e segmentações para melhorar performance e manter-se dentro dos guard rails.",
+      "Agente Repórter": "Extraí as informações do relatório no Notion, formata os principais pontos e envia resumos e alertas nos canais de comunicação como WhatsApp para manter a equipe informada."
+    };
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById('detailModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalDesc = document.getElementById('modalDesc');
+      // Delegar click nos cards
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+          const name = card.getAttribute('data-name');
+          modalTitle.textContent = name;
+          modalDesc.textContent = detalhes[name] || '';
+          modal.style.display = 'flex';
+        });
+      });
+      // Fechar o modal clicando fora do conteúdo ou no 'x'
+      modal.addEventListener('click', event => {
+        if (event.target.id === 'detailModal' || event.target.classList.contains('close')) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
