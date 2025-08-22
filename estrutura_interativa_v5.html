@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arquitetura de Agentes para Mídia Paga</title>
+  <!--
+    Esta página HTML apresenta um fluxograma interativo e responsivo
+    descrevendo uma arquitetura de agentes para gestão de campanhas de mídia paga.
+    O diagrama respeita convenções de arquitetura de software: o banco de dados
+    é representado com uma forma de cilindro; processos e agentes são caixas
+    arredondadas; grupos de componentes são delineados por quadros com títulos.
+    As setas indicam o fluxo de dados entre as etapas e um ciclo de feedback.
+    Ao clicar em cada agente/processo, um modal com detalhes será exibido.
+  -->
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --border-radius: 10px;
+      --shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      --primary: #3b82f6; /* azul para ETL/Relatórios */
+      --secondary: #10b981; /* verde para banco */
+      --orange: #f59e0b; /* criação */
+      --purple: #8b5cf6; /* análise & otimização */
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: var(--bg);
+      color: #111827;
+    }
+    h1 {
+      text-align: center;
+      padding: 20px 0;
+      margin: 0;
+    }
+    .diagram {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      padding-bottom: 50px;
+    }
+    /* Blocos gerais */
+    .block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+    .agent {
+      background: #fff;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 20px 30px;
+      min-width: 160px;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .agent:hover {
+      transform: translateY(-4px);
+    }
+    .agent:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      border-top-left-radius: var(--border-radius);
+      border-top-right-radius: var(--border-radius);
+      background: var(--primary);
+    }
+    /* Estilos por categoria */
+    .etl:before { background: var(--primary); }
+    .db:before { background: var(--secondary); }
+    .cria:before { background: var(--orange); }
+    .analise:before { background: var(--purple); }
+    .report:before { background: var(--primary); }
+    /* Cilindro para banco */
+    .db {
+      border-radius: var(--border-radius) var(--border-radius) 50% 50% / 15% 15% 30% 30%;
+    }
+    /* Grupos */
+    .group {
+      border: 1px solid #e5e7eb;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin-top: 30px;
+      box-shadow: var(--shadow);
+      position: relative;
+      background: #fff;
+    }
+    .group-title {
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: var(--bg);
+      padding: 2px 6px;
+      font-size: 14px;
+      color: #374151;
+    }
+    .group-content {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    /* Conectores em SVG */
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+    .arrow {
+      stroke: #6b7280;
+      stroke-width: 2;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: var(--border-radius);
+      max-width: 500px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .modal h2 {
+      margin-top: 0;
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <h1>Arquitetura de Agentes para Mídia Paga</h1>
+  <div class="diagram">
+    <!-- Camada superior: ETL e Banco -->
+    <div class="block" id="top-layer">
+      <div class="agent etl" data-title="ETL Meta Ads" data-desc="Coleta diária de métricas das campanhas de Meta Ads, faz transformação e normalização dos dados para gravação.">ETL Meta Ads</div>
+      <div class="agent db" data-title="Banco de Dados Supabase" data-desc="Armazena métricas brutas e agregadas, servindo como base central para análises e automações.">Banco de Dados Supabase</div>
+    </div>
+    <!-- Grupos de agentes -->
+    <div class="group" id="group-criacao">
+      <div class="group-title">Criação de Campanhas</div>
+      <div class="group-content">
+        <div class="agent cria" data-title="Agente Curador" data-desc="Seleciona materiais criativos e recursos do repositório (Drive) para uso em campanhas.">Agente Curador</div>
+        <div class="agent cria" data-title="Agente Construtor" data-desc="Usa os materiais selecionados para montar novas campanhas na plataforma Meta Ads.">Agente Construtor</div>
+      </div>
+    </div>
+    <div class="group" id="group-analise">
+      <div class="group-title">Análise &amp; Otimização</div>
+      <div class="group-content">
+        <div class="agent analise" data-title="Agente Analista" data-desc="Consulta o banco de dados, calcula KPIs e elabora relatórios no Notion.">Agente Analista</div>
+        <div class="agent analise" data-title="Agente Estrategista" data-desc="Lê relatórios, define hipóteses e guard rails para otimização das campanhas.">Agente Estrategista</div>
+        <div class="agent analise" data-title="Agente Otimizador" data-desc="Aplica mudanças nas campanhas conforme as estratégias e limites definidos, registrando alterações.">Agente Otimizador</div>
+      </div>
+    </div>
+    <!-- Agente Reporter -->
+    <div class="block" id="report-layer">
+      <div class="agent report" data-title="Agente Repórter" data-desc="Extrai resumos e resultados dos relatórios e compartilha em canais como WhatsApp e dashboards.">Agente Repórter</div>
+    </div>
+    <!-- SVG para setas -->
+    <svg id="connectors">
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+          <polygon points="0 0, 7 3.5, 0 7" fill="#6b7280"></polygon>
+        </marker>
+      </defs>
+      <!-- Setas verticais ETL -> DB -> Análise -->
+      <path id="path-etl-db" class="arrow" />
+      <path id="path-db-analise" class="arrow" />
+      <!-- Setas horizontais dentro de grupos -->
+      <path id="path-curador-construtor" class="arrow" />
+      <path id="path-analista-estrategista" class="arrow" />
+      <path id="path-estrategista-otimizador" class="arrow" />
+      <!-- Setas do BD para criação e da análise para repórter -->
+      <path id="path-db-criacao" class="arrow" />
+      <path id="path-analise-reporter" class="arrow" />
+      <!-- Loop Otimizador de volta ao ETL -->
+      <path id="path-loop" class="arrow" />
+    </svg>
+  </div>
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">×</span>
+      <h2 id="modal-title"></h2>
+      <p id="modal-desc"></p>
+    </div>
+  </div>
+  <script>
+    // Função para atualizar as coordenadas das setas depois do layout ser renderizado
+    function updateArrows() {
+      const etl = document.querySelector('.etl');
+      const db = document.querySelector('.db');
+      const groupCriacao = document.getElementById('group-criacao');
+      const groupAnalise = document.getElementById('group-analise');
+      const analyst = document.querySelector('.analise:nth-child(1)');
+      const strategist = document.querySelector('.analise:nth-child(2)');
+      const optimizer = document.querySelector('.analise:nth-child(3)');
+      const reporter = document.querySelector('#report-layer .agent');
+      const curador = document.querySelector('#group-criacao .cria:nth-child(1)');
+      const construtor = document.querySelector('#group-criacao .cria:nth-child(2)');
+      // helper to compute center bottom of element
+      function bottomCenter(el) {
+        const rect = el.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.bottom + window.scrollY
+        };
+      }
+      function topCenter(el) {
+        const rect = el.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.top + window.scrollY
+        };
+      }
+      function rightMiddle(el) {
+        const rect = el.getBoundingClientRect();
+        return {
+          x: rect.right + window.scrollX,
+          y: rect.top + rect.height / 2 + window.scrollY
+        };
+      }
+      function leftMiddle(el) {
+        const rect = el.getBoundingClientRect();
+        return {
+          x: rect.left + window.scrollX,
+          y: rect.top + rect.height / 2 + window.scrollY
+        };
+      }
+      // ETL -> DB
+      let p1 = bottomCenter(etl);
+      let p2 = topCenter(db);
+      document.getElementById('path-etl-db').setAttribute('d', `M${p1.x},${p1.y} L${p2.x},${p2.y}`);
+      // DB -> Análise (vertical down to group then center of group)
+      let dbRect = db.getBoundingClientRect();
+      let groupAnaliseRect = groupAnalise.getBoundingClientRect();
+      let xDb = dbRect.left + dbRect.width / 2;
+      let yDb = dbRect.bottom;
+      let xGrpAnalise = groupAnaliseRect.left + groupAnaliseRect.width / 2;
+      let yGrpAnalise = groupAnaliseRect.top;
+      // path goes down then right or left accordingly; use a polyline path: down to midway, then horizontal
+      let midY = (yDb + yGrpAnalise) / 2;
+      document.getElementById('path-db-analise').setAttribute('d', `M${xDb},${yDb + window.scrollY} L${xDb},${midY + window.scrollY} L${xGrpAnalise},${midY + window.scrollY} L${xGrpAnalise},${yGrpAnalise + window.scrollY}`);
+      // DB -> Criação (down to left group)
+      let groupCriacaoRect = groupCriacao.getBoundingClientRect();
+      let xGrpCriacao = groupCriacaoRect.left + groupCriacaoRect.width / 2;
+      let yGrpCriacao = groupCriacaoRect.top;
+      let midY2 = (yDb + yGrpCriacao) / 2;
+      document.getElementById('path-db-criacao').setAttribute('d', `M${xDb},${yDb + window.scrollY} L${xDb},${midY2 + window.scrollY} L${xGrpCriacao},${midY2 + window.scrollY} L${xGrpCriacao},${yGrpCriacao + window.scrollY}`);
+      // Horizontal arrows inside groups
+      // Curador -> Construtor
+      let curadorPos = rightMiddle(curador);
+      let construtorPos = leftMiddle(construtor);
+      document.getElementById('path-curador-construtor').setAttribute('d', `M${curadorPos.x},${curadorPos.y} L${construtorPos.x},${construtorPos.y}`);
+      // Analista -> Estrategista
+      let analystPos = rightMiddle(analyst);
+      let strategistPos = leftMiddle(strategist);
+      document.getElementById('path-analista-estrategista').setAttribute('d', `M${analystPos.x},${analystPos.y} L${strategistPos.x},${strategistPos.y}`);
+      // Estrategista -> Otimizador
+      let strategistPos2 = rightMiddle(strategist);
+      let optimizerPos = leftMiddle(optimizer);
+      document.getElementById('path-estrategista-otimizador').setAttribute('d', `M${strategistPos2.x},${strategistPos2.y} L${optimizerPos.x},${optimizerPos.y}`);
+      // Análise -> Repórter (vertical down)
+      let groupAnaliseBottom = groupAnaliseRect.bottom;
+      let reporterTop = reporter.getBoundingClientRect().top;
+      let xAnaliseCenter = groupAnaliseRect.left + groupAnaliseRect.width / 2;
+      let yAnaliseBottom = groupAnaliseRect.bottom;
+      let xReporterCenter = reporter.getBoundingClientRect().left + reporter.getBoundingClientRect().width / 2;
+      document.getElementById('path-analise-reporter').setAttribute('d', `M${xAnaliseCenter},${yAnaliseBottom + window.scrollY} L${xAnaliseCenter},${reporterTop + window.scrollY}`);
+      // Loop from Otimizador back to ETL (top-left then up and left)
+      let optimizerRect = optimizer.getBoundingClientRect();
+      let optX = optimizerRect.left + optimizerRect.width / 2;
+      let optY = optimizerRect.bottom;
+      let etlRect = etl.getBoundingClientRect();
+      let etlX = etlRect.left + etlRect.width / 2;
+      let etlY = etlRect.top;
+      // path: from optimizer bottom up to top margin, across to ETL x and up to ETL top
+      let topMargin = etlY - 50;
+      document.getElementById('path-loop').setAttribute('d', `M${optX},${optY + window.scrollY} L${optX},${topMargin + window.scrollY} L${etlX},${topMargin + window.scrollY} L${etlX},${etlY + window.scrollY}`);
+    }
+    // Modal functionality
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    document.querySelectorAll('.agent').forEach(el => {
+      el.addEventListener('click', () => {
+        modalTitle.textContent = el.getAttribute('data-title');
+        modalDesc.textContent = el.getAttribute('data-desc');
+        modal.style.display = 'flex';
+      });
+    });
+    document.getElementById('closeModal').addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+    // Atualizar setas no carregamento e quando a janela é redimensionada
+    window.addEventListener('load', updateArrows);
+    window.addEventListener('resize', updateArrows);
+  </script>
+</body>
+</html>
